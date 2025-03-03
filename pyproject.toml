@@ -11,6 +11,7 @@ pandas = "^2.2.3"
 ipykernel = "^6.29.5"
 scipy = "^1.15.2"
 openpyxl = "^3.1.5"
+gradio = "^5.20.0"
 
 
 [build-system]

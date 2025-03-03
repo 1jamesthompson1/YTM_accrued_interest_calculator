@@ -136,3 +136,10 @@ def complete_calculation(purchase_price, face_value, coupon_rate, coupon_frequen
         "ytm": ytm,
         "daily_rate": daily_rate
     }
+
+def validate_inputs(purchase_price, face_value, coupon_rate, coupon_frequency, first_coupon_amount, settlement_date, first_coupon_date, maturity_date):
+    if not all([purchase_price, face_value, coupon_rate, coupon_frequency, first_coupon_amount, settlement_date, first_coupon_date, maturity_date]):
+        return "All fields are required"
+    
+
+    return None
