@@ -1,6 +1,7 @@
 import gradio as gr
 import pandas as pd
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import calculator
 
@@ -66,7 +67,7 @@ def process_batch_input(file):
 
     results = [calculator.complete_calculation(row["PurchaseAmount"], row["FaceValue"], row["CouponRate"], row["CouponFrequency"], row["FirstCouponAmount"], row["SettlementDate"], row["FirstCouponDate"], row["MaturityDate"]) for index, row in df.iterrows()]
 
-    output_path = f"{file.name.split('.')[0]}_processed_{datetime.now().strftime('%Y-%m-%d|%H:%M:%S')}.xlsx"
+    output_path = f"{file.name.split('.')[0]}_processed_{datetime.now(tz=ZoneInfo('Pacific/Auckland')).strftime('%Y-%m-%d|%H:%M:%S')}.xlsx"
 
     calculations = list(zip(df.iterrows(), results))
     print(calculations[0])
