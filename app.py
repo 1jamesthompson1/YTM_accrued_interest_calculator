@@ -59,7 +59,7 @@ def process_batch_input(file):
     for index, row in df.iterrows():
         error = calculator.validate_inputs(row["PurchaseAmount"], row["FaceValue"], row["CouponRate"], row["CouponFrequency"], row["FirstCouponAmount"], row["SettlementDate"], row["FirstCouponDate"], row["MaturityDate"])
         if error:
-            problems.append(f"Row {index}: {error}")
+            problems.append(f"Row {index}({row['BondCode']}): {error}")
 
     if len(problems) > 0:
         raise ValueError("There are problems with the input:\n\n" + "\n".join(problems))
@@ -68,10 +68,42 @@ def process_batch_input(file):
 
     output_path = f"{file.name.split('.')[0]}_processed_{datetime.now().strftime('%Y-%m-%d|%H:%M:%S')}.xlsx"
 
+    calculations = list(zip(df.iterrows(), results))
+    print(calculations[0])
     with pd.ExcelWriter(output_path) as writer:
-        for bond, result in zip(df["BondCode"], results):
-            result['df'].to_excel(writer, sheet_name=bond, index=False)
+        for (index, row), result in calculations:
+            code = row["BondCode"]
+            print(f"Code: '{code}'")
+            summary_df = pd.DataFrame({
+                "BondCode": [code],
+                "PurchaseAmount": [row["PurchaseAmount"]],
+                "FaceValue": [row["FaceValue"]],
+                "CouponRate": [row["CouponRate"]],
+                "CouponFrequency": [row["CouponFrequency"]],
+                "FirstCouponAmount": [row["FirstCouponAmount"]],
+                "SettlementDate": [row["SettlementDate"]],
+                "FirstCouponDate": [row["FirstCouponDate"]],
+                "MaturityDate": [row["MaturityDate"]],
+                "calculated YTM": [result["ytm"]],
+                "calculated DailyRate": [result["daily_rate"]]
+            })
 
+            number_of_rows = len(result['df'])
+
+            formulas_df = pd.DataFrame({
+                "BondCode": "",
+                "PurchaseAmount": f"=sum(B5:B{number_of_rows+5})",
+                "ElapsedDays": "",
+                "CurrentInterest": f"=sum(D5:D{number_of_rows+5})",
+                "CurrentPrincipal": f"=sum(E5:E{number_of_rows+5})",
+                "CumulativeInterest": f"=F{number_of_rows+4}",
+                "ClosingPrincipal": f"=G{number_of_rows+4}",
+                "InterestToBalance": f"=sum(H5:H{number_of_rows+5})"
+            }, index=[0])
+            
+            summary_df.to_excel(writer, sheet_name=code, index=False)
+            result['df'].to_excel(writer, sheet_name=code, index=False, startrow=3)
+            formulas_df.to_excel(writer, sheet_name=code, index=False, header=False, startrow=number_of_rows+5)
     return output_path  # Returning file path for download
 
 def process_single_input(purchase_price, face_value, coupon_rate, coupon_frequency, first_coupon_amount, settlement_date, first_coupon_date, maturity_date):
@@ -87,7 +119,6 @@ batch_processing = gr.Interface(
     fn=process_batch_input,
     inputs=gr.File(label="Upload Excel File (.xlsx)"),
     outputs=gr.File(label="Download Processed File"),
-    title="YTM accrued interest calculator",
     description=batch_description
 )
 
@@ -109,7 +140,6 @@ single_processing = gr.Interface(
         gr.Number(label="YTM"),
         gr.Number(label="Daily Rate")
     ],
-    title="YTM accrued interest calculator",
     description=single_description
 )
 
@@ -118,7 +148,6 @@ template_interface = gr.Interface(
     fn=create_template,
     inputs=[],
     outputs=gr.File(label="Download Template (.xlsx)"),
-    title="Download Bond Template",
     description="Click the button below to download the Excel template for entering bond details.",
 )
 
