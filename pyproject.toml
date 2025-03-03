@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "ytm-accrued-interest-calculator"
+version = "0.1.0"
+description = "This is some basic functions that will help calculate the YTM percent and accrued interest for a bond."
+authors = ["1jamesthompson1 <1jamesthompson1@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pandas = "^2.2.3"
+numpy = "^2.2.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
