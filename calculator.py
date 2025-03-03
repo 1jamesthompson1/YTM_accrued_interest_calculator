@@ -138,8 +138,26 @@ def complete_calculation(purchase_price, face_value, coupon_rate, coupon_frequen
     }
 
 def validate_inputs(purchase_price, face_value, coupon_rate, coupon_frequency, first_coupon_amount, settlement_date, first_coupon_date, maturity_date):
-    if not all([purchase_price, face_value, coupon_rate, coupon_frequency, first_coupon_amount, settlement_date, first_coupon_date, maturity_date]):
-        return "All fields are required"
     
+    if purchase_price <= 0:
+        return "Purchase price must be greater than 0"
+
+    if face_value <= 0:
+        return "Face value must be greater than 0"
+
+    if coupon_rate <= 0 and coupon_rate >= 1:
+        return "Coupon rate must be greater than 0 and less than 1"
+
+    if coupon_frequency not in [1,2,4,6,12]:
+        return "Coupon frequency must be one of 1, 2, 4, 6, or 12"
+
+    if first_coupon_amount < 0:
+        return "First coupon amount cannot be negative"
+
+    if pd.Timestamp(settlement_date) > pd.Timestamp(first_coupon_date):
+        return "Settlement date must be before first coupon date"
+
+    if pd.Timestamp(first_coupon_date) > pd.Timestamp(maturity_date):
+        return "First coupon date must be before maturity date"
 
     return None
