@@ -10,7 +10,7 @@ COPY . .
 RUN pip install --no-cache-dir poetry
 
 # Install the dependencies using Poetry
-RUN poetry install --no-root
+RUN poetry config virtualenvs.create false && poetry install --no-root
 
 # Expose the port that the app runs on
 EXPOSE 7860
