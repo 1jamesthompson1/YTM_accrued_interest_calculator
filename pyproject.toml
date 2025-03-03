@@ -8,7 +8,6 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 pandas = "^2.2.3"
-numpy = "^2.2.3"
 ipykernel = "^6.29.5"
 scipy = "^1.15.2"
 openpyxl = "^3.1.5"
