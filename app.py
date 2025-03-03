@@ -33,7 +33,6 @@ def process_single_input(purchase_price, face_value, coupon_rate, coupon_frequen
         raise ValueError("There are problems with the input:\n\n" + error)
 
     result = calculator.complete_calculation(purchase_price, face_value, coupon_rate, coupon_frequency, first_coupon_amount, settlement_date, first_coupon_date, maturity_date)
-    print(result['df'])
     return result["df"], result["ytm"], result["daily_rate"]  # Returning the DataFrame for display
 
 # Create Gradio app
