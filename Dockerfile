@@ -8,6 +8,7 @@ COPY . .
 
 # Install Poetry
 RUN pip install --no-cache-dir poetry
+RUN pip install gradio
 
 # Install the dependencies using Poetry
 RUN poetry config virtualenvs.create false && poetry install --no-root
@@ -16,4 +17,4 @@ RUN poetry config virtualenvs.create false && poetry install --no-root
 EXPOSE 7860
 
 # Command to run the application
-CMD ["poetry",  "run", "gradio", "app.py"]
+CMD ["gradio", "app.py"]
