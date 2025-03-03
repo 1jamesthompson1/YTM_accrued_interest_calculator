@@ -3,7 +3,7 @@ title: YTM_accrued_interest_calculator
 emoji: 🧮
 colorFrom: purple
 colorTo: gray
-sdk: docker
+sdk: gradio
 app_file: app.py
 pinned: false
 ---

@@ -4,6 +4,53 @@ from datetime import datetime
 
 import calculator
 
+variable_descriptions = """
+**PurchasePrice**: The price at which the bond was purchased.  
+**FaceValue**: The face value of the bond.  
+**CouponRate**: The annual coupon rate of the bond.  
+**CouponFrequency**: The number of coupon payments per year (The calculator is setup to accept 1, 2, 4, 6, or 12).  
+**FirstCouponAmount**: The amount of the first coupon payment (This needed because sometimes the first coupon payment is missed so its 0, or the first coupon payment is smaller than the expected amount due to it not being a full cycle.).   
+**SettlementDate**: The date the bond was purchased.  
+**FirstCouponDate**: The date of the first coupon payment (It may be zero).  
+**MaturityDate**: The date the bond matures.  
+"""
+def create_template():
+    # Create an empty dataframe with the necessary columns
+    template_df = pd.DataFrame(columns=[
+        "BondCode", "PurchaseAmount", "FaceValue", "CouponRate", "CouponFrequency",
+        "FirstCouponAmount", "SettlementDate", "FirstCouponDate", "MaturityDate"
+    ])
+    
+    # Save to Excel as a template
+    output_path = "bond_template.xlsx"
+    template_df.to_excel(output_path, index=False)
+    
+    return output_path  # Return the path to the template file
+
+# Create Gradio app for batch processing
+batch_description = f"""
+### Instructions for Batch Processing:
+1. Upload an Excel file with the bond details (e.g., Purchase Amount, Face Value, Coupon Rate, etc.).
+2. Ensure that each row represents a different bond.
+3. The app will validate the inputs and check for errors (e.g., missing or incorrect values).
+4. Once validated, the app will calculate the YTM and accrued interest for each bond and generate a processed Excel file.
+5. You will be able to download the processed file with the results.  
+
+Instructions for the different inputs:  
+{variable_descriptions}
+"""
+
+# Create Gradio app for single processing
+single_description = f"""
+### Instructions for Single Bond Calculation:
+1. Enter the details of a single bond in the form fields (e.g., Purchase Price, Face Value, Coupon Rate, etc.).
+2. Ensure that all fields are correctly filled to avoid validation errors.
+3. The app will calculate the YTM (Yield to Maturity) and accrued interest based on the provided information.
+4. The results will be displayed in a table format, along with the YTM and daily rate.  
+
+Instructions for the different inputs:  
+{variable_descriptions}
+"""
 def process_batch_input(file):
     # Read the uploaded Excel file
     df = pd.read_excel(file.name)
@@ -41,8 +88,9 @@ batch_processing = gr.Interface(
     inputs=gr.File(label="Upload Excel File (.xlsx)"),
     outputs=gr.File(label="Download Processed File"),
     title="YTM accrued interest calculator",
-    description="Upload an excel file with bond details to calculate the YTM and accrued interest."
+    description=batch_description
 )
+
 
 single_processing = gr.Interface(
     fn=process_single_input,
@@ -62,12 +110,21 @@ single_processing = gr.Interface(
         gr.Number(label="Daily Rate")
     ],
     title="YTM accrued interest calculator",
-    description="Enter bond details to calculate the YTM and accrued interest."
+    description=single_description
+)
+
+# Add a new interface for downloading the template
+template_interface = gr.Interface(
+    fn=create_template,
+    inputs=[],
+    outputs=gr.File(label="Download Template (.xlsx)"),
+    title="Download Bond Template",
+    description="Click the button below to download the Excel template for entering bond details.",
 )
 
 demo = gr.TabbedInterface(
-    [batch_processing, single_processing],
-    ["Batch Processing", "Single Processing"],
+    [batch_processing, single_processing, template_interface],
+    ["Batch Processing", "Single Processing", "Download Template"],
     title="YTM accrued interest calculator",
 )
 # Run the app
