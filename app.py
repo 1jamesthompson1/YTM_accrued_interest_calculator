@@ -56,6 +56,10 @@ def process_batch_input(file):
     # Read the uploaded Excel file
     df = pd.read_excel(file.name)
 
+    # Parse date columns
+    for col in ["FirstCouponDate", "SettlementDate", "MaturityDate"]:
+        df[col] = pd.to_datetime(df[col], errors='coerce', dayfirst=True)
+
     problems = list()
     for index, row in df.iterrows():
         error = calculator.validate_inputs(row["PurchaseAmount"], row["FaceValue"], row["CouponRate"], row["CouponFrequency"], row["FirstCouponAmount"], row["SettlementDate"], row["FirstCouponDate"], row["MaturityDate"])
@@ -63,7 +67,7 @@ def process_batch_input(file):
             problems.append(f"Row {index}({row['BondCode']}): {error}")
 
     if len(problems) > 0:
-        raise ValueError("There are problems with the input:\n\n" + "\n".join(problems))
+        return (None ,"There are problems with the input:\n\n" + "\n".join(problems))
 
     results = [calculator.complete_calculation(row["PurchaseAmount"], row["FaceValue"], row["CouponRate"], row["CouponFrequency"], row["FirstCouponAmount"], row["SettlementDate"], row["FirstCouponDate"], row["MaturityDate"]) for index, row in df.iterrows()]
 
@@ -109,7 +113,7 @@ def process_batch_input(file):
             summary_df.to_excel(writer, sheet_name=code, index=False)
             result['df'].to_excel(writer, sheet_name=code, index=False, startrow=3)
             formulas_df.to_excel(writer, sheet_name=code, index=False, header=False, startrow=number_of_rows+5)
-    return output_path  # Returning file path for download
+    return (output_path, "No errors, calculation successful!") # Returning file path for download
 
 def process_single_input(purchase_price, face_value, coupon_rate, coupon_frequency, first_coupon_amount, settlement_date, first_coupon_date, maturity_date):
     error = calculator.validate_inputs(purchase_price, face_value, coupon_rate, coupon_frequency, first_coupon_amount, settlement_date, first_coupon_date, maturity_date)
@@ -123,7 +127,7 @@ def process_single_input(purchase_price, face_value, coupon_rate, coupon_frequen
 batch_processing = gr.Interface(
     fn=process_batch_input,
     inputs=gr.File(label="Upload Excel File (.xlsx)"),
-    outputs=gr.File(label="Download Processed File"),
+    outputs=[gr.File(label="Download Processed File"), gr.Textbox(label="Error Messages")],
     description=batch_description
 )
 

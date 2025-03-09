@@ -156,12 +156,20 @@ def validate_inputs(purchase_price, face_value, coupon_rate, coupon_frequency, f
         return "First coupon amount cannot be negative"
 
     try:
-        if pd.Timestamp(settlement_date) > pd.Timestamp(first_coupon_date):
-            return "Settlement date must be before first coupon date"
+        if settlement_date is pd.NaT:
+            return "Settlement date is malformed"
+        if first_coupon_date is pd.NaT:
+            return "First coupon date is malformed"
+        if maturity_date is pd.NaT:
+            return "Maturity date is malformed"
 
-        if pd.Timestamp(first_coupon_date) > pd.Timestamp(maturity_date):
+        # Validate chronological order of dates
+        if settlement_date > first_coupon_date:
+            return "Settlement date must be before first coupon date"
+        if first_coupon_date > maturity_date:
             return "First coupon date must be before maturity date"
-    except ValueError as e:
-        return "One of the dates are not formatted correctly watch out for spaces."
+
+    except Exception as e:
+        return f"Date validation error: {e}"
 
     return None
