@@ -121,6 +121,18 @@ def interest_to_balance_data(df):
 
     return df
 
+def tax_to_declare(df, face_value):
+    '''
+    Add next to the interest to balance the amount of extra tax that needs to be declared. This is worked out with InterestToBalance - sum(cashflows from tax year)
+    '''
+    df['TaxableInterest'] = float(0)
+    for index, row in df.iterrows():
+        if row['InterestToBalance'] != 0:
+            df.loc[index, 'TaxableInterest'] = row['InterestToBalance'] - df.loc[1:(index-1), 'Cash Flow'].sum() - df.loc[1:(index-1), 'TaxableInterest'].sum() + df.loc[1:(index-1), 'InterestToBalance'].sum() + (face_value if index == len(df)-1 else 0)
+
+    return df
+
+
 def complete_calculation(purchase_price, face_value, coupon_rate, coupon_frequency, first_coupon_amount, settlement_date, first_coupon_date, maturity_date):
     cashflows = populate_cashflows(purchase_price, face_value, coupon_rate, coupon_frequency, first_coupon_amount, settlement_date, first_coupon_date, maturity_date)
 
@@ -132,8 +144,10 @@ def complete_calculation(purchase_price, face_value, coupon_rate, coupon_frequen
 
     cashflows_with_interest_balance = interest_to_balance_data(cashflows_with_interest_principal)
 
+    add_taxable_interest = tax_to_declare(cashflows_with_interest_balance, face_value)
+
     return {
-        "df": cashflows_with_interest_balance,
+        "df": add_taxable_interest,
         "ytm": ytm,
         "daily_rate": daily_rate
     }
