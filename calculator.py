@@ -155,10 +155,13 @@ def validate_inputs(purchase_price, face_value, coupon_rate, coupon_frequency, f
     if first_coupon_amount < 0:
         return "First coupon amount cannot be negative"
 
-    if pd.Timestamp(settlement_date) > pd.Timestamp(first_coupon_date):
-        return "Settlement date must be before first coupon date"
+    try:
+        if pd.Timestamp(settlement_date) > pd.Timestamp(first_coupon_date):
+            return "Settlement date must be before first coupon date"
 
-    if pd.Timestamp(first_coupon_date) > pd.Timestamp(maturity_date):
-        return "First coupon date must be before maturity date"
+        if pd.Timestamp(first_coupon_date) > pd.Timestamp(maturity_date):
+            return "First coupon date must be before maturity date"
+    except ValueError as e:
+        return "One of the dates are not formatted correctly watch out for spaces."
 
     return None

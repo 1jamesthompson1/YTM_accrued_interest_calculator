@@ -79,9 +79,9 @@ def process_batch_input(file):
                 "CouponRate": [row["CouponRate"]],
                 "CouponFrequency": [row["CouponFrequency"]],
                 "FirstCouponAmount": [row["FirstCouponAmount"]],
-                "SettlementDate": [row["SettlementDate"]],
-                "FirstCouponDate": [row["FirstCouponDate"]],
-                "MaturityDate": [row["MaturityDate"]],
+                "SettlementDate": [row["SettlementDate"].strftime('%d/%m/%Y')],
+                "FirstCouponDate": [row["FirstCouponDate"].strftime('%d/%m/%Y')],
+                "MaturityDate": [row["MaturityDate"].strftime('%d/%m/%Y')],
                 "calculated YTM": [result["ytm"]],
                 "calculated DailyRate": [result["daily_rate"]]
             })
