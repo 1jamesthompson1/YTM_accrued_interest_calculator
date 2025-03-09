@@ -43,7 +43,8 @@ def populate_cashflows(purchase_price, face_value, coupon_rate, coupon_frequency
         if index == 0:
             cashflows.append({'Date': payment_date, 'Cash Flow': -purchase_price, 'Elapsed Days': elapsed_days})
         elif index == 1:
-            cashflows.append({'Date': payment_date, 'Cash Flow': first_coupon_amount, 'Elapsed Days': elapsed_days})
+            if first_coupon_amount != 0:
+                cashflows.append({'Date': payment_date, 'Cash Flow': first_coupon_amount, 'Elapsed Days': elapsed_days})
         elif index == len(cashflow_dates) - 1:
             cashflows.append({'Date': payment_date, 'Cash Flow': face_value + payment_amount, 'Elapsed Days': elapsed_days})
             break
