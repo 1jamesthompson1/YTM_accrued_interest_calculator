@@ -69,12 +69,9 @@ def process_batch_input(file):
 
     output_path = f"{file.name.split('.')[0]}_processed_{datetime.now(tz=ZoneInfo('Pacific/Auckland')).strftime('%Y-%m-%d|%H:%M:%S')}.xlsx"
 
-    calculations = list(zip(df.iterrows(), results))
-    print(calculations[0])
     with pd.ExcelWriter(output_path) as writer:
-        for (index, row), result in calculations:
+        for (index, row), result in zip(df.iterrows(), results):
             code = row["BondCode"]
-            print(f"Code: '{code}'")
             summary_df = pd.DataFrame({
                 "BondCode": [code],
                 "PurchaseAmount": [row["PurchaseAmount"]],
@@ -101,6 +98,13 @@ def process_batch_input(file):
                 "ClosingPrincipal": f"=G{number_of_rows+4}",
                 "InterestToBalance": f"=sum(H5:H{number_of_rows+5})"
             }, index=[0])
+
+            # Clean result date to just be date string
+            result['df']['Date'] = pd.to_datetime(result['df']['Date']).dt.strftime('%d/%m/%Y')
+
+            # Make all other columns calcluated to 2 dp
+            result['df']['ClosingPrincipal'] = result['df']['ClosingPrincipal'].apply(lambda x: round(x, 2))
+            result['df']['InterestToBalance'] = result['df']['InterestToBalance'].apply(lambda x: round(x, 2))
             
             summary_df.to_excel(writer, sheet_name=code, index=False)
             result['df'].to_excel(writer, sheet_name=code, index=False, startrow=3)
