@@ -18,7 +18,7 @@ def generate_payment_dates(start_date, maturity_date, coupon_frequency):
     3. the payment dates are equally spaced
     '''
     dates = pd.date_range(start=start_date, end=maturity_date, freq=f"{12//coupon_frequency}ME", )
-    dates = list(dates.map(lambda x: x.replace(day=pd.to_datetime(start_date).day)))
+    dates = list(dates.map(lambda x: pd.Timestamp(x)))
 
     maturity_date = pd.Timestamp(maturity_date)
     if maturity_date not in dates:
